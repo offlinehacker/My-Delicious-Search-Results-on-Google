@@ -20,32 +20,53 @@ delLogo = "data:image/png;base64,AAABAAIAEBAAAAEAGABoAwAAJgAAABAQAAABACAAaAQAAI4
 
 GM_DUR = {
   un : "",
-  init : function()
+  last_un : "",
+  init : function(first_run)
   {
     var href = document.location.href;
-    GM_DUR.un = href.match(/[&?]q=([^&]*)(?:&|$)/)[1];
+    res= href.match(/[&?]q=([^&]*)(?:&|$)/g);
+    GM_DUR.un= res[res.length-1].match(/[&?]q=([^&]*)(?:&|$)/)[1];
 
-    if( GM_DUR.un != "" )
+    if( !first_run  && (GM_DUR.un=="" || GM_DUR.un==GM_DUR.last_un)){}
+    else
     {
-      GM_xmlhttpRequest({
-        method:"GET",
-        url:"http://feeds.delicious.com/v2/json/"+del_username+"/"+GM_DUR.un,
-        headers:{
-          "User-Agent":"Mozilla/5.0",
-          "Accept":"text/json"
-        },
-        onload:GM_DUR.handle
-      });
+	    if( GM_DUR.un != "" )
+	    {
+	      GM_xmlhttpRequest({
+	        method:"GET",
+	        url:"http://feeds.delicious.com/v2/json/"+del_username+"/"+GM_DUR.un,
+	        headers:{
+	          "User-Agent":"Mozilla/5.0",
+	          "Accept":"text/json"
+	        },
+	        onload:GM_DUR.handle
+	      });
+           }
     }
+
+    if(!first_run) GM_DUR.last_un= GM_DUR.un;
+    setTimeout("GM_DUR.init(false);",500);
   },
 
   handle : function(response)
   {
     var results = eval("("+response.responseText+")");
+    //alert(results);
     if( results.length > 0 )
     {
+      //alert("parse");
+      var results_section;
+
+      if(document.getElementById("delicious_results"))
+      {
+          results_section= document.getElementById("delicious_results");
+          while (results_section.hasChildNodes()) {
+              results_section.removeChild(results_section.lastChild);
+          }
+      }
       var results_section = document.getElementById("res");
       var ds = document.createElement("ol");
+      ds.id= "delicious_results";
       results_section.insertBefore(ds, results_section.firstChild);
             
       var il, h;
@@ -77,11 +98,21 @@ GM_DUR = {
           "<a href='http://delicious.com/search?p=" + GM_DUR.un +"&lc=1&context=all'>all of del.icio.us</a>"+
           "</p><div id='ssb'></div>";
     }
+    else
+    {
+	if(document.getElementById("delicious_results"))
+	{
+	  results_section= document.getElementById("delicious_results");
+	  while (results_section.hasChildNodes()) {
+	      results_section.removeChild(results_section.lastChild);
+	  }
+        }
+    }
   },
 };
 
-GM_DUR.init();
-
+unsafeWindow.GM_DUR= GM_DUR;
+GM_DUR.init(true);
 
 function setUserName()
 {

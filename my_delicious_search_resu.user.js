@@ -3,8 +3,9 @@
 // @namespace      jmason, NicuMergePrinFum, offlinehacker
 // @description    Shows tag-search results from my Delicious account on Google search pages, with links to more extensive Delicious searches.  Use 'User Script Commands' -> 'Set Delicious Username' to specify your username
 // @include  http://www.google.*q=*
+// @include  https://www.google.*q=*
 // @date     2011-07-10
-// @version  0.3.0.0
+// @version  0.3.1.0
 // @GM_version     0.8.20080609.0
 // 
 // This is almost entirely from 'Delicious Search Results on Google' (http://userscripts.org/scripts/show/43784), which in turn notes that 99% of the code for that user script comes form markcarey's userscript 'Twitter Search Results on Google' (http://userscripts.org/scripts/show/43451).
